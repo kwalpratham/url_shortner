@@ -1,10 +1,48 @@
 from datetime import datetime
-from core.models import ShortUrls
+from core.models.urls import ShortUrls
+from core.models.users import Users
 from core import app, db
 from flask import render_template, request, flash, redirect, url_for
 from .manager import Manager
+from flask_login import LoginManager, UserMixin, login_user, logout_user
+
 
 manage = Manager()
+
+
+@login_manager.user_loader
+def loader_user(user_id):
+    return Users.query.get(user_id)
+ 
+ 
+@app.route('/register', methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        user = Users(username=request.form.get("username"),
+                     password=request.form.get("password"))
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for("login"))
+    return render_template("sign_up.html")
+ 
+ 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        user = Users.query.filter_by(
+            username=request.form.get("username")).first()
+        if user.password == request.form.get("password"):
+            login_user(user)
+            return redirect(url_for("home"))
+    return render_template("login.html")
+ 
+ 
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for("home"))
+
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -17,8 +55,8 @@ def index():
             flash('The URL is required!')
             return redirect(url_for('index'))
 
-
-        elif short_id and ShortUrls.query.filter_by(short_id=short_id).first() is not None:
+        
+        if short_id and ShortUrls.query.filter_by(short_id=short_id).first() is not None:
             flash('Please enter different custom id!')
             return redirect(url_for('index'))
         
@@ -28,10 +66,10 @@ def index():
             short_id = url_object.short_id
             hits = url_object.hits
             short_url = request.host_url + short_id
-            return render_template('index.html', short_url=short_url, hits=hits)
+            return render_template('index.html', data=[short_url, hits])
 
         # generate a url hash
-        elif not short_id:
+        if not short_id:
             short_id = manage.generate_short_id() # type: ignore
 
         new_link = ShortUrls(
