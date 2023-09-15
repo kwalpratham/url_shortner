@@ -1,0 +1,6 @@
+Flask
+sqlalchemy
+python-dotenv
+gunicorn
+Flask-Migrate
+python-decouple
