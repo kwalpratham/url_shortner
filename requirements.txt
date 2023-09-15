@@ -1,6 +1,7 @@
 Flask
-sqlalchemy
+Flask-Migrate
+Flask-SQLAlchemy
 python-dotenv
 gunicorn
-Flask-Migrate
 python-decouple
+string

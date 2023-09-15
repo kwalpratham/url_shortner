@@ -1,4 +1,3 @@
-1. Add some restrictions on the custom url
-2. add authentication
+1. add authentication
+2. add analytics endpoint
 3. deploy
-4. add analytics endpoint

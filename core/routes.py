@@ -2,8 +2,9 @@ from datetime import datetime
 from core.models import ShortUrls
 from core import app, db
 from flask import render_template, request, flash, redirect, url_for
-from . import manager
+from .manager import Manager
 
+manage = Manager()
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -26,7 +27,7 @@ def index():
             return redirect(url_for('index'))
 
         if not short_id:
-            short_id = manager.generate_short_id()
+            short_id = manage.generate_short_id() # type: ignore
 
         new_link = ShortUrls(
             original_url=url, short_id=short_id, created_at=datetime.now())
@@ -56,6 +57,8 @@ def redirect_url(short_id):
     if link:
         link.hits += 1
         db.session.commit()
+        print(link.original_url)
+        return redirect("https://www.google.com")
         return redirect(link.original_url)
     else:
         flash('Invalid URL')
