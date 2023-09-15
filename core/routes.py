@@ -28,7 +28,7 @@ def index():
             short_id = url_object.short_id
             hits = url_object.hits
             short_url = request.host_url + short_id
-            return render_template('index.html', short_url=short_url, hits=hits)
+            return render_template('index.html', data=[short_url, hits])
 
         # generate a url hash
         elif not short_id:

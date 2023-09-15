@@ -25,14 +25,12 @@
             </form>
 
 
-            {% if short_url %}
+            {% if data %}
             <hr>
-            <span><a href="{{ short_url }}" target="_blank">{{ short_url }}</a></span>
+            <span><a href="{{ data[0] }}" target="_blank">{{ data[0] }}</a></span>
+            <p>Hits : {{ data[1] }}</p>
             {% endif %}
-
-            {% if hits %}
-            <span>{{ hits }}</span>
-            {% endif %}
+            
         </div>
         <div class="col-md-2"></div>
     </div>
