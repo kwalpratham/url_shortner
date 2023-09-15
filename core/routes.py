@@ -12,21 +12,26 @@ def index():
         url = request.form['url']
         short_id = request.form['custom_id']
 
-        if short_id and ShortUrls.query.filter_by(short_id=short_id).first() is not None:
-            flash('Please enter different custom id!')
-            return redirect(url_for('index'))
-        
-        # create unique short urls
-        if ShortUrls.query.filter_by(original_url=url).first() is not None:
-            short_id = ShortUrls.query.filter_by(original_url=url).first().short_id
-            short_url = request.host_url + short_id
-            return render_template('index.html', short_url=short_url)
-
+        # In case of null entry
         if not url:
             flash('The URL is required!')
             return redirect(url_for('index'))
 
-        if not short_id:
+
+        elif short_id and ShortUrls.query.filter_by(short_id=short_id).first() is not None:
+            flash('Please enter different custom id!')
+            return redirect(url_for('index'))
+        
+        # known url
+        url_object = ShortUrls.query.filter_by(original_url=url).first()
+        if url_object is not None:
+            short_id = url_object.short_id
+            hits = url_object.hits
+            short_url = request.host_url + short_id
+            return render_template('index.html', short_url=short_url, hits=hits)
+
+        # generate a url hash
+        elif not short_id:
             short_id = manage.generate_short_id() # type: ignore
 
         new_link = ShortUrls(
@@ -57,8 +62,6 @@ def redirect_url(short_id):
     if link:
         link.hits += 1
         db.session.commit()
-        print(link.original_url)
-        return redirect("https://www.google.com")
         return redirect(link.original_url)
     else:
         flash('Invalid URL')
